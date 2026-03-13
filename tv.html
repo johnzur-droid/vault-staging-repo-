@@ -182,11 +182,16 @@ select option { background: var(--bg-elevated); }
 .modal-score-val.imdb { color: var(--gold); }
 
 .modal-play-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 16px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: all var(--transition); text-decoration: none; letter-spacing: 0.2px; }
-.modal-play-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-.modal-play-btn--jellyfin { }
-.modal-play-btn--jellyfin:hover { border-color: #9b59b6; color: #9b59b6; background: rgba(155,89,182,0.12); }
+.modal-play-btn:hover { filter: brightness(1.15); }
+.modal-play-btn--plex { border-color: #E5A00D; color: #E5A00D; background: rgba(229,160,13,0.1); }
+.modal-play-btn--jellyfin { border-color: #00A4DC; color: #00A4DC; background: rgba(0,164,220,0.1); }
 .modal-play-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .modal-play-row .modal-play-btn { flex: unset; }
+
+/* POSTER LIGHTBOX */
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; cursor: zoom-out; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; }
+.lightbox.show { opacity: 1; visibility: visible; }
+.lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--radius-md); box-shadow: var(--shadow-xl); }
 
 .modal-genres { display: flex; gap: 8px; flex-wrap: wrap; }
 .modal-genre { font-size: 13px; padding: 5px 14px; border-radius: 20px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(232,84,58,0.25); font-weight: 500; }
@@ -312,6 +317,7 @@ select option { background: var(--bg-elevated); }
     <div id="modalContent"></div>
   </div>
 </div>
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
 
 <script>
 const CACHE_BUST = '?v=' + Date.now();
@@ -517,7 +523,7 @@ function openModal(idx) {
       <div class="modal-hero-bg-wrap">
         ${poster ? `<img class="modal-hero-bg" src="${poster}" alt="">` : '<div class="modal-hero-bg" style="background:#1e1e24"></div>'}
       </div>
-      ${poster ? `<img class="modal-hero-poster" src="${poster}" alt="">` : ''}
+      ${poster ? `<img class="modal-hero-poster" src="${poster}" alt="" style="cursor:zoom-in" onclick="openLightbox('${poster}')">` : ''}
       <div class="modal-hero-info">
         <div class="modal-hero-title">${s.title}</div>
         <div class="modal-hero-meta">
@@ -533,13 +539,13 @@ function openModal(idx) {
         <a class="modal-score-item" href="https://www.imdb.com/find?q=${encodeURIComponent(s.title)}" target="_blank" rel="noopener"><span class="modal-score-label">IMDB ↗</span><span class="modal-score-val imdb">${imdb}</span></a>
       </div>` : ''}
       <div class="modal-play-row">
-        <button class="modal-play-btn" id="modalPlayBtn">
+        <button class="modal-play-btn modal-play-btn--plex" id="modalPlayBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Open in Plex
+          Play in Plex
         </button>
         <button class="modal-play-btn modal-play-btn--jellyfin" id="modalJellyfinBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Watch in Jellyfin
+          Play in Jellyfin
         </button>
       </div>
       ${s.genres.length ? `<div class="modal-genres">${s.genres.map(g=>`<span class="modal-genre">${g}</span>`).join('')}</div>` : ''}
@@ -617,6 +623,16 @@ function openInPlex(title) {
 document.getElementById('modalBackdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('modalBackdrop')) closeModal();
 });
+
+// Lightbox
+document.getElementById('lightbox').addEventListener('click', () => {
+  document.getElementById('lightbox').classList.remove('show');
+  document.body.style.overflow = 'hidden';
+});
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('show');
+}
 
 checkAuth();
 </script>
