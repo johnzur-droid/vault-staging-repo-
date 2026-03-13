@@ -164,28 +164,32 @@ select option { background: var(--bg-elevated); }
   inset: 0;
   background: rgba(0,0,0,0.85);
   z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
   opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 .modal-backdrop.show { opacity: 1; visibility: visible; pointer-events: auto; }
 
 .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100%;
-  z-index: 501;
-  background: var(--bg-elevated);
+  max-width: 680px;
+  max-height: 90vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  z-index: 501;
   opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 .modal.show { opacity: 1; visibility: visible; pointer-events: auto; }
 
 .modal-close {
-  position: fixed;
+  position: absolute;
   top: 12px;
   right: 12px;
   width: 36px; height: 36px;
@@ -374,9 +378,10 @@ select option { background: var(--bg-elevated); }
   <div class="content" id="content"></div>
 </div>
 
-<div class="modal-backdrop" id="modalBackdrop"></div>
-<div class="modal" id="modal">
-  <div id="modalContent"></div>
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modal">
+    <div id="modalContent"></div>
+  </div>
 </div>
 
 <script>
@@ -697,6 +702,7 @@ function openModal(idx) {
   document.getElementById('modalBackdrop').classList.add('show');
   document.getElementById('modal').classList.add('show');
   document.body.style.overflow = 'hidden';
+  document.getElementById('modal').scrollTop = 0;
 }
 
 function toggleSummary() {
@@ -714,7 +720,9 @@ function closeModal() {
 }
 
 // One-time bindings
-document.getElementById('modalBackdrop').addEventListener('click', closeModal);
+document.getElementById('modalBackdrop').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalBackdrop')) closeModal();
+});
 
 checkAuth();
 </script>
