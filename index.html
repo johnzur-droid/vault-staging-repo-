@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- VAULT BUILD 2026-08-05.1 -->
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>The Vault — Movie Collection</title>
+<link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="vault_icon.png">
 <link rel="apple-touch-icon" href="vault_icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,8 +20,8 @@
   --bg-elevated: #1e1e24;
   --bg-hover: #22222a;
   --text-primary: #f0ede8;
-  --text-secondary: #a09a93;
-  --text-muted: #5a5550;
+  --text-secondary: #b5afa7;
+  --text-muted: #8b857e;
   --accent: #e8543a;
   --accent-dim: rgba(232,84,58,0.15);
   --accent-hover: #ff6347;
@@ -36,9 +38,9 @@
   --font-body: 'DM Sans', -apple-system, sans-serif;
   --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --card-min: 170px;
-  --header-h: 0px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { max-width: 100%; overflow-x: clip; overscroll-behavior-x: none; overflow-anchor: none; }
 body { font-family: var(--font-body); background: var(--bg); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
 /* HEADER RIGHT */
@@ -50,20 +52,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text-p
 .nav-link:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.15); }
 .nav-link.active { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
 
-/* GATE */
-.gate-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
-.gate-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.gate-box { text-align: center; max-width: 340px; padding: 0 24px; }
-.gate-logo { font-family: var(--font-display); font-size: 72px; letter-spacing: 6px; color: var(--text-primary); line-height: 1; margin-bottom: 4px; }
-.gate-logo span { color: var(--accent); }
-.gate-tagline { font-size: 12px; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 40px; }
-.gate-input { width: 100%; padding: 13px 18px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 15px; background: var(--bg-card); color: var(--text-primary); outline: none; margin-bottom: 12px; transition: border-color var(--transition), box-shadow var(--transition); }
-.gate-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,84,58,0.12); }
-.gate-input::placeholder { color: var(--text-muted); }
-.gate-btn { width: 100%; padding: 13px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: background var(--transition); }
-.gate-btn:hover { background: var(--accent-hover); }
-.gate-error { color: var(--accent); font-size: 13px; margin-top: 12px; opacity: 0; transition: opacity 0.2s; }
-.gate-error.show { opacity: 1; }
 
 /* APP */
 .app { opacity: 0; transition: opacity 0.5s ease; }
@@ -80,7 +68,10 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text-p
 .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .search-wrap { flex: 1; min-width: 200px; max-width: 320px; position: relative; }
 .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-.search-input { width: 100%; padding: 9px 11px 9px 34px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 13px; background: var(--bg-card); color: var(--text-primary); outline: none; transition: border-color var(--transition); }
+.search-input { width: 100%; padding: 9px 30px 9px 34px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 13px; background: var(--bg-card); color: var(--text-primary); outline: none; transition: border-color var(--transition); }
+.search-clear { display: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; cursor: pointer; color: var(--text-muted); line-height: 1; }
+.search-clear:hover { color: var(--text-primary); }
+.search-clear.visible { display: flex; align-items: center; }
 .search-input:focus { border-color: var(--accent); }
 .search-input::placeholder { color: var(--text-muted); }
 
@@ -108,30 +99,30 @@ select option { background: var(--bg-elevated); }
 .content { padding: 16px 32px 80px; max-width: 1600px; margin: 0 auto; }
 
 /* GRID */
-.movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--card-min), 1fr)); gap: 18px; }
+.movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(var(--card-min), 100%), 1fr)); gap: 18px; }
 
-.movie-card { cursor: pointer; transition: transform var(--transition); -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.movie-card { min-width: 0; max-width: 100%; cursor: pointer; transition: transform var(--transition); -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 .movie-card:hover { transform: translateY(-4px); }
 
 .poster-wrap { position: relative; aspect-ratio: 2/3; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-elevated); box-shadow: var(--shadow-md); transition: box-shadow var(--transition); }
 .movie-card:hover .poster-wrap { box-shadow: var(--shadow-lg); }
 .poster-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
 .movie-card:hover .poster-img { transform: scale(1.04); }
-.poster-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-elevated); color: var(--text-muted); font-size: 11px; text-align: center; padding: 12px; gap: 8px; }
+.poster-placeholder { overflow-wrap: anywhere; word-break: break-word; min-width: 0; max-width: 100%; overflow: hidden; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-elevated); color: var(--text-muted); font-size: 11px; text-align: center; padding: 12px; gap: 8px; }
 
-.scores-bar { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 6px 7px; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%); }
-.score-pill { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 2px; }
+.scores-bar { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 6px 7px; pointer-events: none; }
+.score-pill { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 999px; background: rgba(0,0,0,0.72); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.12); line-height: 1.35; }
 .score-pill.rt { color: #ff6b6b; }
 .score-pill.imdb { color: var(--gold); }
-.score-pill.empty { opacity: 0; }
+.score-pill.empty { opacity: 0; background: none; border-color: transparent; }
 
 .poster-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%); opacity: 0; transition: opacity var(--transition); display: flex; align-items: flex-end; padding: 10px; }
 .movie-card:hover .poster-overlay { opacity: 1; }
-.overlay-text { color: rgba(255,255,255,0.9); font-size: 11px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.overlay-text { overflow-wrap: anywhere; word-break: break-word; color: rgba(255,255,255,0.9); font-size: 11px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 
 .card-info { padding: 7px 2px 0; }
 .card-title { font-weight: 600; font-size: 13px; color: var(--text-primary); line-height: 1.3; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-meta { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.card-meta { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
 .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--text-muted); display: inline-block; }
 
 /* Large card */
@@ -143,7 +134,7 @@ select option { background: var(--bg-elevated); }
 
 /* LIST VIEW */
 .movie-list { display: flex; flex-direction: column; gap: 1px; background: var(--border-light); border-radius: var(--radius-md); overflow: hidden; }
-.list-item { display: flex; align-items: center; gap: 14px; padding: 11px 16px; background: var(--bg-card); cursor: pointer; transition: background var(--transition); }
+.list-item { min-width: 0; max-width: 100%; display: flex; align-items: center; gap: 14px; padding: 11px 16px; background: var(--bg-card); cursor: pointer; transition: background var(--transition); }
 .list-item:hover { background: var(--bg-hover); }
 .list-num { font-size: 12px; color: var(--text-muted); width: 26px; text-align: right; flex-shrink: 0; }
 .list-poster { width: 38px; height: 57px; border-radius: 4px; object-fit: cover; flex-shrink: 0; background: var(--bg-elevated); }
@@ -266,7 +257,7 @@ select option { background: var(--bg-elevated); }
 /* Meta — stacked sections, not a cramped grid */
 .modal-meta-section { display: flex; flex-direction: column; gap: 20px; }
 .modal-meta-item { display: flex; flex-direction: column; gap: 6px; }
-.modal-meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); }
+.modal-meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-secondary); }
 .modal-meta-val { font-size: 16px; color: var(--text-primary); line-height: 1.5; }
 .modal-meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 /* keep old grid class working — redirect to new pattern */
@@ -277,10 +268,38 @@ select option { background: var(--bg-elevated); }
 .empty-state p { font-size: 15px; margin-top: 14px; }
 
 /* ── RESPONSIVE ─────────────────────────────────────────────────────────────── */
+
+/* --- CONTENT ADVISORIES (DoesTheDogDie) --- */
+.ca-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.ca-pill { font-size: 9px; letter-spacing: 0.5px; font-weight: 700; padding: 2px 5px;
+  border-radius: 3px; background: rgba(229,160,13,0.15); color: #E5A00D;
+  border: 1px solid rgba(229,160,13,0.35); white-space: nowrap; }
+.ca-pill-v { background: rgba(232,84,58,0.15); color: #e8543a; border-color: rgba(232,84,58,0.35); }
+.ca-block { display: flex; flex-direction: column; gap: 10px; }
+.ca-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ca-name { font-size: 14px; color: var(--text-primary); min-width: 140px; }
+.ca-dots { display: inline-flex; gap: 3px; }
+.ca-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.13); }
+.ca-dot-on { background: #E5A00D; }
+.ca-dot-on.ca-dot-hi { background: #e8543a; }
+.ca-word { font-size: 13px; color: var(--text-secondary); }
+.ca-blurb { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-top: 2px; }
+.ca-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+.ca-age { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 4px;
+  background: rgba(255,255,255,0.07); color: var(--text-primary); }
+.ca-src { font-size: 12px; color: var(--text-muted); font-style: italic; }
+.ca-link { font-size: 13px; color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid rgba(232,84,58,0.4); }
+.ca-val { font-size: 14px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+.ca-yes { background: rgba(229,160,13,0.15); color: #E5A00D; }
+.ca-no { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+.ca-mixed { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+.ca-votes { font-size: 12px; color: var(--text-muted); }
+
 @media (max-width: 768px) {
-  .header { padding: 12px 12px 12px; }
-  .content { padding: 12px 12px 60px 12px; }
-  .results-bar { padding: 0 12px; min-height: 0; }
+  .header { padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 12px max(12px, env(safe-area-inset-left)); }
+  .content { padding: 12px max(12px, env(safe-area-inset-right)) max(60px, calc(60px + env(safe-area-inset-bottom))) max(12px, env(safe-area-inset-left)); }
+  .results-bar { padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left)); min-height: 0; }
   .results-bar:empty { display: none; }
   .movie-grid { gap: 10px; }
   .controls { gap: 6px; }
@@ -296,7 +315,6 @@ select option { background: var(--bg-elevated); }
 }
 
 @media (max-width: 480px) {
-  /* padding-top set dynamically by JS */
   .brand { font-size: 26px; letter-spacing: 2px; }
   .header-stats { font-size: 10px; }
   .controls { gap: 5px; }
@@ -318,16 +336,6 @@ select option { background: var(--bg-elevated); }
 </head>
 <body>
 
-<div class="gate-overlay" id="gate">
-  <div class="gate-box">
-    <div class="gate-logo">The <span>Vault</span></div>
-    <div class="gate-tagline">Private Collection</div>
-    <input type="password" class="gate-input" id="gatePassword" placeholder="Enter password" autocomplete="off">
-    <button class="gate-btn" id="gateBtn">Enter</button>
-    <p class="gate-error" id="gateError">Wrong password.</p>
-  </div>
-</div>
-
 <div class="app" id="app">
   <div class="header">
     <div class="header-top">
@@ -344,18 +352,21 @@ select option { background: var(--bg-elevated); }
       <div class="search-wrap">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" class="search-input" id="searchInput" placeholder="Search title, cast, genre…">
+        <button class="search-clear" id="searchClear" aria-label="Clear search"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <select id="genreFilter"><option value="">All Genres</option></select>
       <select id="yearFilter"><option value="">All Years</option></select>
       <select id="sortSelect">
-        <option value="rt-desc" selected>RT Score ↓</option>
+        <option value="added-desc" selected>Date Added ↓</option>
+        <option value="added-asc">Date Added ↑</option>
+        <option value="rt-desc">RT Score ↓</option>
         <option value="rt-asc">RT Score ↑</option>
         <option value="imdb-desc">IMDB Score ↓</option>
         <option value="imdb-asc">IMDB Score ↑</option>
         <option value="title-asc">Title A–Z</option>
         <option value="title-desc">Title Z–A</option>
-        <option value="year-desc">Newest First</option>
-        <option value="year-asc">Oldest First</option>
+        <option value="year-desc">Release Year ↓</option>
+        <option value="year-asc">Release Year ↑</option>
         <option value="runtime-asc">Shortest First</option>
         <option value="runtime-desc">Longest First</option>
       </select>
@@ -392,7 +403,9 @@ select option { background: var(--bg-elevated); }
 <div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
 
 <script>
-const SITE_PASSWORD = "jzmovies";
+// Standalone PWA relaunch restores the previous scroll offset, which slides
+// the first grid row under the sticky header. Take manual control.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 const PLEX_SERVER_ID = "d44998cf5c4376bd50ed3428466e49fd79488ee0";
 const JELLYFIN_URL = "http://192.168.0.100:8096";
 const JELLYFIN_API_KEY = "3a6432cff09d459fb93909f33415e0b8";
@@ -403,7 +416,7 @@ let currentView = 'grid';
 let currentSize = 'med';
 let filtered = [];
 
-const SIZES = { small: '110px', med: '180px', large: '280px' };
+const SIZES = { small: '110px', med: '170px', large: '280px' };
 
 async function loadMovies() {
   try {
@@ -471,39 +484,51 @@ function imdbDisplay(m) {
   return '';
 }
 
-// AUTH
-function checkAuth() {
-  if (sessionStorage.getItem('vault_auth') === 'true') {
-    document.getElementById('gate').classList.add('hidden');
-    document.getElementById('app').classList.add('visible');
-    init();
-  }
+
+// --- SORT PERSISTENCE ---------------------------------------------------
+// Shared across index.html and tv.html so the choice survives page switches.
+// Falls back to Date Added when the saved value isn't valid on this page
+// (e.g. "runtime-asc" saved on Movies, then switching to TV).
+const SORT_KEY = 'vault_sort';
+const DEFAULT_SORT = 'added-desc';
+
+function restoreSort() {
+  const sel = document.getElementById('sortSelect');
+  let saved = null;
+  try { saved = localStorage.getItem(SORT_KEY); } catch (e) { /* private mode */ }
+  const valid = saved && [...sel.options].some(o => o.value === saved);
+  sel.value = valid ? saved : DEFAULT_SORT;
 }
-document.getElementById('gateBtn').addEventListener('click', tryLogin);
-document.getElementById('gatePassword').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-function tryLogin() {
-  if (document.getElementById('gatePassword').value === SITE_PASSWORD) {
-    sessionStorage.setItem('vault_auth', 'true');
-    document.getElementById('gate').classList.add('hidden');
-    setTimeout(() => { document.getElementById('app').classList.add('visible'); init(); }, 200);
-  } else {
-    const err = document.getElementById('gateError');
-    err.classList.add('show');
-    document.getElementById('gatePassword').value = '';
-    setTimeout(() => err.classList.remove('show'), 2500);
-  }
+
+function saveSort() {
+  try { localStorage.setItem(SORT_KEY, document.getElementById('sortSelect').value); }
+  catch (e) { /* storage unavailable -- sort still works, just won't persist */ }
 }
 
 async function init() {
   await loadMovies();
   buildFilters();
+  restoreSort();
   applyFilters();
+  document.getElementById('statsLabel').title = 'build ' + VAULT_BUILD;
   document.getElementById('statsLabel').textContent = `${MOVIES.length} titles`;
+  window.scrollTo(0, 0);
 
-  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  const searchInput = document.getElementById('searchInput');
+  const searchClear = document.getElementById('searchClear');
+  searchInput.addEventListener('input', () => {
+    searchClear.classList.toggle('visible', searchInput.value.length > 0);
+    applyFilters();
+  });
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    applyFilters();
+    searchInput.focus();
+  });
   document.getElementById('genreFilter').addEventListener('change', applyFilters);
   document.getElementById('yearFilter').addEventListener('change', applyFilters);
-  document.getElementById('sortSelect').addEventListener('change', applyFilters);
+  document.getElementById('sortSelect').addEventListener('change', () => { saveSort(); applyFilters(); });
   document.getElementById('gridBtn').addEventListener('click', () => setView('grid'));
   document.getElementById('listBtn').addEventListener('click', () => setView('list'));
   document.getElementById('sizeSmall').addEventListener('click', () => setSize('small'));
@@ -540,6 +565,9 @@ function applyFilters() {
 
   filtered.sort((a, b) => {
     switch(sort) {
+      // Unknown addedAt (0) sorts last in BOTH directions.
+      case 'added-desc': return (b.addedAt || 0) - (a.addedAt || 0);
+      case 'added-asc':  return (a.addedAt || 9e15) - (b.addedAt || 9e15);
       case 'title-asc': return a.title.localeCompare(b.title);
       case 'title-desc': return b.title.localeCompare(a.title);
       case 'year-desc': return b.year - a.year;
@@ -576,6 +604,91 @@ function setSize(s) {
   render();
 }
 
+
+// --- CONTENT ADVISORIES (DoesTheDogDie) ---------------------------------
+// .advisories is null when never looked up. Each category carries raw yes/no
+// vote totals plus hasData, so display can change without a data rebuild.
+function advSource(item) {
+  const a = item.advisories;
+  return (a && a.source) ? a.source : null;
+}
+
+// Common Sense scores are 0-5 per category. Anything at 3+ is worth flagging
+// on the card. DoesTheDogDie is the fallback for the ~25% Common Sense does
+// not review, and only reports when enough people voted -- a single vote is
+// what made Black Sails read "Nudity: No" when Common Sense rates sex 5/5.
+const CA_LABELS = { sex: 'Sex & Nudity', violence: 'Violence', language: 'Language',
+                    drugs: 'Drinking, Drugs & Smoking' };
+const CA_ORDER = ['sex', 'violence', 'language', 'drugs'];
+const CA_WORDS = ['None', 'Slight', 'Some', 'Moderate', 'Heavy', 'Severe'];
+
+function advHasAny(item) {
+  const a = item.advisories;
+  if (!a) return false;
+  if (a.source === 'csm') return CA_ORDER.some(k => typeof a[k] === 'number');
+  return !!(a.nudity || a.sexualContent);
+}
+
+// Card pills: only the genuinely notable stuff.
+function advBadges(item) {
+  const a = item.advisories;
+  if (!a) return '';
+  const out = [];
+  if (a.source === 'csm') {
+    if (typeof a.sex === 'number' && a.sex >= 3) out.push('<span class="ca-pill">SEX ' + a.sex + '/5</span>');
+    if (typeof a.violence === 'number' && a.violence >= 4) out.push('<span class="ca-pill ca-pill-v">VIOLENCE ' + a.violence + '/5</span>');
+  } else {
+    const yes = d => d && (d.yes || 0) > (d.no || 0);
+    if (yes(a.nudity)) out.push('<span class="ca-pill">NUDITY</span>');
+    if (yes(a.sexualContent)) out.push('<span class="ca-pill">SEX</span>');
+  }
+  return out.length ? `<div class="ca-bar">${out.join('')}</div>` : '';
+}
+
+function advRow(item) {
+  if (!advHasAny(item)) return '';
+  const a = item.advisories;
+  const imdbLink = item.imdbId
+    ? `<a class="ca-link" href="https://www.imdb.com/title/${item.imdbId}/parentalguide" target="_blank" rel="noopener">Full parents guide on IMDb &#8599;</a>`
+    : '';
+  let body = '', foot = '';
+
+  if (a.source === 'csm') {
+    body = CA_ORDER.filter(k => typeof a[k] === 'number').map(k => {
+      const v = a[k];
+      const dots = [0,1,2,3,4].map(i =>
+        `<span class="ca-dot${i < v ? ' ca-dot-on' : ''}${v >= 4 ? ' ca-dot-hi' : ''}"></span>`).join('');
+      return `<div class="ca-line"><span class="ca-name">${CA_LABELS[k]}</span>` +
+             `<span class="ca-dots">${dots}</span>` +
+             `<span class="ca-word">${CA_WORDS[v] || v}</span></div>`;
+    }).join('');
+    if (a.blurb) body += `<div class="ca-blurb">${a.blurb}</div>`;
+    const age = (typeof a.age === 'number') ? `<span class="ca-age">Age ${a.age}+</span>` : '';
+    foot = `<div class="ca-foot">${age}<a class="ca-link" href="${a.url}" target="_blank" rel="noopener">Common Sense Media &#8599;</a>${imdbLink}</div>`;
+  } else {
+    const line = (label, d) => {
+      if (!d) return '';
+      const y = d.yes || 0, n = d.no || 0;
+      const verdict = y > n ? 'Yes' : (n > y ? 'No' : 'Mixed');
+      const cls = y > n ? 'ca-yes' : (n > y ? 'ca-no' : 'ca-mixed');
+      return `<div class="ca-line"><span class="ca-name">${label}</span>` +
+             `<span class="ca-val ${cls}">${verdict}</span>` +
+             `<span class="ca-votes">${y} of ${y + n} viewers</span></div>`;
+    };
+    body = line('Nudity', a.nudity) + line('Sexual content', a.sexualContent);
+    foot = `<div class="ca-foot"><span class="ca-src">Viewer-voted</span>${imdbLink}</div>`;
+  }
+
+  return `<div class="modal-meta-item">
+      <div class="modal-meta-label">Content Advisory</div>
+      <div class="ca-block">${body}</div>
+      ${foot}
+    </div>`;
+}
+
+const VAULT_BUILD = '2026-08-05.2';
+console.log('Vault build', VAULT_BUILD);
+
 function render() {
   const content = document.getElementById('content');
   if (filtered.length === 0) {
@@ -597,15 +710,15 @@ function render() {
             <span>${m.title}</span>
           </div>
           <div class="scores-bar">
-            <span class="score-pill rt">${rt ? '🍅 ' + rt : ''}</span>
-            <span class="score-pill imdb">${imdb ? '⭐ ' + imdb : ''}</span>
+            <span class="score-pill rt ${rt ? '' : 'empty'}">${rt ? '🍅 ' + rt : ''}</span>
+            <span class="score-pill imdb ${imdb ? '' : 'empty'}">${imdb ? '⭐ ' + imdb : ''}</span>
           </div>
           <div class="poster-overlay"><div class="overlay-text">${m.summary}</div></div>
         </div>
         <div class="card-info">
           <div class="card-title" title="${m.title}">${m.title}</div>
           <div class="card-meta">${m.year}<span class="dot"></span>${m.genres[0]||''}<span class="dot"></span>${formatRuntime(m.duration)}</div>
-          ${large && (rt || imdb) ? `<div class="card-scores-large">${rt ? `<span class="card-score-large rt">🍅 ${rt}</span>` : ''}${imdb ? `<span class="card-score-large imdb">⭐ ${imdb}</span>` : ''}</div>` : ''}
+          ${advBadges(m)}
         </div>
       </div>`;
     }).join('')}</div>`;
@@ -676,6 +789,7 @@ function openModal(idx) {
         <button class="modal-more-btn" id="modalMoreBtn" style="display:none">More ▾</button>
       </div>
       <div class="modal-meta-section">
+        ${advRow(m)}
         ${m.cast.length ? `<div class="modal-meta-item"><div class="modal-meta-label">Cast</div><div class="modal-meta-val">${m.cast.join(', ')}</div></div>` : ''}
         <div class="modal-meta-row">
           ${m.directors.length ? `<div class="modal-meta-item"><div class="modal-meta-label">Director</div><div class="modal-meta-val">${m.directors.join(', ')}</div></div>` : ''}
@@ -728,6 +842,17 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
+// When PWA returns from Plex — reset any leaked modal/body state
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    document.body.style.overflow = '';
+    document.getElementById('lightbox').classList.remove('show');
+  }
+});
+window.addEventListener('pageshow', () => {
+  document.body.style.overflow = '';
+});
+
 // One-time bindings
 document.getElementById('modalBackdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('modalBackdrop')) closeModal();
@@ -743,10 +868,13 @@ function openLightbox(src) {
   document.getElementById('lightbox').classList.add('show');
 }
 
-checkAuth();
+// No password gate -- open the library directly.
+document.getElementById('app').classList.add('visible');
+init();
 </script>
 </body>
 </html>
+
 
 
 
